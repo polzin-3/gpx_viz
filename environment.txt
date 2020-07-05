@@ -1,0 +1,6 @@
+To create environment: gpx_viz
+
+>> conda create -n gpx_viz python=3.6.7 matplotlib pandas jupyterlab
+>> conda activate gpx_viz
+>> conda install -c conda-forge geopandas
+>> conda install -c conda-forge gpxpy, folium
