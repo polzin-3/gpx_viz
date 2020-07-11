@@ -52,8 +52,9 @@ def read_data(filepaths):
                                 'time':point.time},
                                ignore_index=True)
             # group into 1 minute bins
-            df['binned_time'] = df['time'].dt.floor('1min')
-            df = df.groupby('binned_time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
+            if df['time'].isna().sum() < 1: 
+                df['time'] = df['time'].dt.floor('1min')
+                df = df.groupby('time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
             df_all.append(df)
 
     df_all = pd.concat(df_all)
