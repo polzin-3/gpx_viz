@@ -60,7 +60,8 @@ def read_data(filepaths):
     df_all = pd.concat(df_all)
     return df_all
 
-def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None):
+def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None,
+                radius=10, blur=15, min_opacity=0.4):
     """Make folium heatmap from lat, lon data.
     
     Parameters
@@ -71,18 +72,24 @@ def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None):
         latitude, longitude tuple of map centrepoint
     save_as : str, optional
         filename to save html map file, if desired
+    radius : int, optional
+        Folium Heatmap parameter
+    blur : int, optional
+        Folium Heatmap parameter
+    min_opacity : int, optional
+        Folium Heatmap parameter
         
     Returns
     -------
     folium map object
     
     """
-    m = folium.Map(location=centre, zoom_start=6, width='40%')#, height='80%')
+    m = folium.Map(location=centre, zoom_start=6)#, width='40%', height='80%')
 
     heat_data = dataframe[['lat', 'lon']].dropna().drop_duplicates()
     heat_data = [[row['lat'],row['lon']] for index, row in heat_data.iterrows()]
     # Plot it on the map
-    HeatMap(heat_data, radius=10, blur=15, min_opacity=.4).add_to(m)
+    HeatMap(heat_data, radius=radius, blur=blur, min_opacity=min_opacity).add_to(m)
     if save_as is not None:
         m.save(save_as)
     return m
