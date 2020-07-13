@@ -2,6 +2,8 @@ import pandas as pd
 import folium
 from folium.plugins import HeatMap, HeatMapWithTime
 import gpxpy
+import geopandas as gpd
+import numpy as np
 
 def read_data(filepaths):
     """Reads multiple gpx files into a single pandas DataFrame.
@@ -22,9 +24,9 @@ def read_data(filepaths):
         gpx_file = open(filename, 'r')
         gpx = gpxpy.parse(gpx_file)
         # check that data is all in .points attribute of first segment and first track
+        print(filename)
+        #print(len(gpx.tracks))
         if (len(gpx.tracks) != 1) | (len(gpx.tracks[0].segments) != 1):
-            #print(filename)
-            #print(len(gpx.tracks))
             df = pd.DataFrame(columns=['lon', 'lat', 'alt', 'time'])
             for i in range(len(gpx.tracks)):
                 #print(len(gpx.tracks[i].segments))
@@ -37,8 +39,9 @@ def read_data(filepaths):
                                         'alt':point.elevation,
                                         'time':point.time},
                                        ignore_index=True)
-            df['binned_time'] = df['time'].dt.floor('1min')
-            df = df.groupby('binned_time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
+            #df['time'] = df['time'].dt.floor('1min')
+            #df = df.groupby('time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
+            df = interp_metres(df)
             df_all.append(df)
 
         else:
@@ -55,6 +58,8 @@ def read_data(filepaths):
             if df['time'].isna().sum() < 1: 
                 df['time'] = df['time'].dt.floor('1min')
                 df = df.groupby('time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
+            df = interp_metres(df)
+            print(df.shape[0])
             df_all.append(df)
 
     df_all = pd.concat(df_all)
@@ -93,3 +98,21 @@ def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None,
     if save_as is not None:
         m.save(save_as)
     return m
+
+def interp_metres(data, metres=10):
+    data = gpd.GeoDataFrame(data,
+                            geometry=gpd.points_from_xy(data.lon, data.lat),
+                            crs='epsg:4326')
+    data = data.to_crs('epsg:27700')
+    data['dist_diff'] = 0
+    for i in data.index[:-1]:
+        data.loc[i+1, 'dist_diff'] = data.loc[i, 'geometry'].distance(data.loc[i+1, 'geometry'])
+    data['dist'] = data['dist_diff'].cumsum()
+    new_dist = np.arange(0, data['dist'].max(), metres)  # 10 metre sampling
+    lat = np.interp(new_dist, data['dist'].values, data['lat'].values)
+    lon = np.interp(new_dist, data['dist'].values, data['lon'].values)
+    #alt = np.interp(new_dist, data['dist'].values, data['alt'].values)
+    new_data = pd.DataFrame({'lon':lon, 'lat':lat})
+    new_data['alt'] = np.nan
+    new_data['time'] = np.nan
+    return new_data

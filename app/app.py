@@ -4,12 +4,16 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import pandas as pd
+import base64
 import functions as appfun
 
 app = dash.Dash()
 
 print("Reading data...")
 data = pd.read_pickle('Coordinates_data.pkl')
+# images
+peak_b64 = base64.b64encode(open('peaklogo.png', 'rb').read()).decode('ascii')
+fare_b64 = base64.b64encode(open('fareshare_logo.jpg', 'rb').read()).decode('ascii')
 print("Done.")
 
 colors = {
@@ -23,12 +27,23 @@ fonts  = {
 }
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
     html.Div(
-        html.Img(src=app.get_asset_url('peaklogo.png'), style={'height':'10%', 'width':'10%'}
-        )
+        html.Img(src='data:image/png;base64,{}'.format(peak_b64),
+        style={'height':'100px'}
+        ),
+    style={'display': 'inline-block'}
     ),
 
     html.Div(
-        children='United we hike',
+        html.Img(src='data:image/png;base64,{}'.format(fare_b64),
+        style={'height':'100px'}
+        ),
+    style={'display': 'inline-block'}
+    ),
+
+    html.Div(
+        #children='United, we hike',
+        children=html.P(["United, ", html.Span("we hike",
+                                                style={'font-weight':'bold'})]),
         style={
             'textAlign': 'left',
             'color': colors['text'],
