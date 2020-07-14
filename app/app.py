@@ -135,7 +135,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
     ),
 
     html.Div(id="map_div",
-            style={'width': '50%', 'textAlign':'center', 'height': '400px',
+            style={'width': '50%', 'textAlign':'center', 'height': '500px',
                 'color': colors['text'], 'fontFamily': fonts['peak1'],
                 'padding': '10px'}
     )
@@ -150,7 +150,7 @@ def get_map(radius, blur, min_opacity):
     appfun.make_heatmap(data, centre=(54.083797, -2.858426), save_as='heatmap.html',
                         radius=radius, blur=blur, min_opacity=min_opacity)
     return html.Iframe(id="map",srcDoc=open('heatmap.html', 'r').read(),
-                        width='100%', height=400)
+                        width='100%', height=500)
 
 @app.callback(
     [Output('hm_radius', 'value'),

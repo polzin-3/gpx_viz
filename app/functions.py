@@ -4,6 +4,8 @@ from folium.plugins import HeatMap, HeatMapWithTime
 import gpxpy
 import geopandas as gpd
 import numpy as np
+from folium import IFrame
+import base64
 
 def read_data(filepaths):
     """Reads multiple gpx files into a single pandas DataFrame.
@@ -116,3 +118,13 @@ def interp_metres(data, metres=10):
     new_data['alt'] = np.nan
     new_data['time'] = np.nan
     return new_data
+
+def add_img_markers(m):
+    # Add markers
+    test_b64 = base64.b64encode(open('peaklogo.png', 'rb').read())
+    html_img = '<img src="data:image/png;base64,{}">'.format
+    iframe = IFrame(html_img(test_b64.decode('ascii')), width=50, height=50)
+    popup = folium.Popup(iframe)
+    folium.Marker([dataframe['lat'].mean(), dataframe['lon'].mean()],
+                popup=popup, tooltip='Click me!').add_to(m)
+    return m
