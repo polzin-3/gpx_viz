@@ -56,12 +56,13 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         [dcc.Slider(
             id='hm_radius',
             min=1,
-            max=20,
+            max=30,
             step=1,
             marks={
                 1: '1',
                 10: '10',
-                20: '20'
+                20: '20',
+                30: '30'
             },
             value=10,
             tooltip={'always_visible':False}
