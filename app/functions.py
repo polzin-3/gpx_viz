@@ -69,7 +69,7 @@ def read_data(filepaths):
     return df_all
 
 def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None,
-                radius=10, blur=15, min_opacity=0.4, markers=True):
+                radius=10, blur=15, min_opacity=0.4, markers=False):
     """Make folium heatmap from lat, lon data.
     
     Parameters
@@ -122,11 +122,11 @@ def interp_metres(data, metres=10):
     new_data['time'] = np.nan
     return new_data
 
-def add_img_markers(m):
-    images = ['Darren','Dovestones','Ewan','Harry','John','Jon','Laura','Stephen']
+def add_img_markers(m, image_list=None):
+    images = ['Darren','Dovestones','Ewan','Harry','John','Jon','Laura','Simon','Stephen']
     latlon = [(51.5525,-0.8051),(53.5312,-1.9740),(53.5056,-2.2919),
-            (54.4569,-2.9498),(57.2236,-2.3219),(53.5312,-1.9740),
-            (53.2756,-2.7396),(53.4262,-2.3313)]
+            (54.4569,-2.9498),(57.2236,-2.3219),(53.4879,-2.2744),
+            (53.2756,-2.7396),(54.0615,-2.8404),(53.4262,-2.3313)]
     # Add markers
     for name,coord in zip(images, latlon):
         tmp_b64 = base64.b64encode(open(name + '.png', 'rb').read())

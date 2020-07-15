@@ -48,7 +48,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
             'textAlign': 'left',
             'color': colors['text'],
             'fontFamily': fonts['peak1'],
-            'paddingLeft': '10px'
+            'paddingLeft': '30px'
         },
     ),
 
@@ -72,9 +72,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     target='r_slide_txt', placement='bottom',
                     style={'fontFamily': fonts['peak1'], 'color': colors['pink_text']})
         ],
-        style={'width': '15%', 'display': 'inline-block', 'padding': '10px',
-        'fontFamily': fonts['peak1'], 'color': colors['text'], 'fontSize': '12px',
-        'textAlign': 'center'}
+        style={'width': '10%', 'display': 'inline-block', 'paddingTop': '10px',
+        'paddingBottom': '10px', 'fontFamily': fonts['peak1'],
+        'color': colors['text'], 'fontSize': '12px', 'textAlign': 'center'}
     ),
 
     html.Div(
@@ -96,9 +96,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     target='b_slide_txt', placement='bottom',
                     style={'fontFamily': fonts['peak1'], 'color': colors['pink_text']})
         ],
-        style={'width': '15%', 'display': 'inline-block', 'padding': '10px',
-        'fontFamily': fonts['peak1'], 'color': colors['text'], 'fontSize': '12px',
-        'textAlign': 'center'}
+        style={'width': '10%', 'display': 'inline-block', 'paddingTop': '10px',
+        'paddingBottom': '10px', 'fontFamily': fonts['peak1'],
+        'color': colors['text'], 'fontSize': '12px', 'textAlign': 'center'}
     ),
 
     html.Div(
@@ -120,9 +120,23 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     target='op_slide_txt', placement='bottom',
                     style={'fontFamily': fonts['peak1'], 'color': colors['pink_text']})
         ],
-        style={'width': '15%', 'display': 'inline-block', 'padding': '10px',
-        'fontFamily': fonts['peak1'], 'color': colors['text'], 'fontSize': '12px',
-        'textAlign': 'center'}
+        style={'width': '10%', 'display': 'inline-block', 'paddingTop': '10px',
+        'paddingBottom': '10px', 'fontFamily': fonts['peak1'],
+        'color': colors['text'], 'fontSize': '12px', 'textAlign': 'center'}
+    ),
+
+    html.Div(
+        dcc.Checklist(
+            id='show_images',
+            options=[
+                {'label': 'Show images', 'value': 'show'},
+            ],
+            value=[],
+            labelStyle={'display': 'block'}
+        ),
+    style={'width': '10%', 'display': 'inline-block', 'textAlign':'center',
+            'paddingTop': '10px', 'paddingBottom': '10px',
+            'fontFamily': fonts['peak1'], 'color': colors['text']}
     ),
 
     html.Div(
@@ -131,7 +145,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                            'fontWeight': 'bold', 'color': colors['text'],
                            'background': colors['pink_text']}),
     style={'width': '10%', 'display': 'inline-block', 'textAlign':'center',
-            'padding': '10px'}
+            'paddingTop': '10px', 'paddingBottom': '10px'}
     ),
 
     html.Div(id="map_div",
@@ -145,20 +159,27 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
     Output('map_div', 'children'),
     [Input('hm_radius', 'value'),
      Input('hm_blur', 'value'),
-     Input('hm_min_opacity', 'value')])
-def get_map(radius, blur, min_opacity):
+     Input('hm_min_opacity', 'value'),
+     Input('show_images', 'value')])
+def get_map(radius, blur, min_opacity, images):
+    if 'show' in images:
+        markers = True
+    else:
+        markers = False
     appfun.make_heatmap(data, centre=(54.083797, -2.858426), save_as='heatmap.html',
-                        radius=radius, blur=blur, min_opacity=min_opacity)
+                        radius=radius, blur=blur, min_opacity=min_opacity,
+                        markers=markers)
     return html.Iframe(id="map",srcDoc=open('heatmap.html', 'r').read(),
                         width='100%', height=500)
 
 @app.callback(
     [Output('hm_radius', 'value'),
     Output('hm_blur', 'value'),
-    Output('hm_min_opacity', 'value')],
+    Output('hm_min_opacity', 'value'),
+    Output('show_images', 'value')],
     [Input('default', 'n_clicks')])
 def get_map(n_clicks):
-    return [10, 15, 0.4]
+    return [10, 15, 0.4, []]
 
 
 if __name__ == '__main__':
