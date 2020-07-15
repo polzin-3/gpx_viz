@@ -62,13 +62,14 @@ def read_data(filepaths):
                 df = df.groupby('time').agg({'lon':'mean', 'lat':'mean', 'alt':'mean'}).reset_index()
             df = interp_metres(df)
             print(df.shape[0])
+            print("Mean lat: {}, Mean lon: {}".format(df['lat'].mean(), df['lon'].mean()))
             df_all.append(df)
 
     df_all = pd.concat(df_all)
     return df_all
 
 def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None,
-                radius=10, blur=15, min_opacity=0.4):
+                radius=10, blur=15, min_opacity=0.4, markers=True):
     """Make folium heatmap from lat, lon data.
     
     Parameters
@@ -97,6 +98,8 @@ def make_heatmap(dataframe, centre=(54.083797, -2.858426), save_as=None,
     heat_data = [[row['lat'],row['lon']] for index, row in heat_data.iterrows()]
     # Plot it on the map
     HeatMap(heat_data, radius=radius, blur=blur, min_opacity=min_opacity).add_to(m)
+    if markers:
+        m = add_img_markers(m)
     if save_as is not None:
         m.save(save_as)
     return m
@@ -120,11 +123,16 @@ def interp_metres(data, metres=10):
     return new_data
 
 def add_img_markers(m):
+    images = ['Darren','Dovestones','Ewan','Harry','John','Jon','Laura','Stephen']
+    latlon = [(51.5525,-0.8051),(53.5312,-1.9740),(53.5056,-2.2919),
+            (54.4569,-2.9498),(57.2236,-2.3219),(53.5312,-1.9740),
+            (53.2756,-2.7396),(53.4262,-2.3313)]
     # Add markers
-    test_b64 = base64.b64encode(open('peaklogo.png', 'rb').read())
-    html_img = '<img src="data:image/png;base64,{}">'.format
-    iframe = IFrame(html_img(test_b64.decode('ascii')), width=50, height=50)
-    popup = folium.Popup(iframe)
-    folium.Marker([dataframe['lat'].mean(), dataframe['lon'].mean()],
-                popup=popup, tooltip='Click me!').add_to(m)
+    for name,coord in zip(images, latlon):
+        tmp_b64 = base64.b64encode(open(name + '.png', 'rb').read())
+        html_img = '<img src="data:image/png;base64,{}" style="height:180px;">'.format
+        iframe = IFrame(html_img(tmp_b64.decode('ascii')), width=200, height=200)
+        popup = folium.Popup(iframe)
+        folium.Marker([coord[0], coord[1]],
+                    popup=popup, tooltip='Click me!').add_to(m)
     return m
