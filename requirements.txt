@@ -1,6 +1,6 @@
 dash
 dash-renderer
-dash-core-dash_bootstrap_components
+dash-core-components
 dash-html-components
 dash-bootstrap-components
 plotly
